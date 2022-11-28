@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+// import { Grid } from "@material-ui/core";
+import { Grid } from '@mui/material';
 
-function App() {
+import { SearchBar, VideoList, VideoDetail } from "../src/components/index";
+
+// import youtube from "../src/api/youtube";
+import axios from "axios";
+
+const App = () => {
+  const [videos, setVideos] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState({ id: {}, snippet: {} });
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Grid style={{ justifyContent: "center" }} container spacing={10}>
+      <Grid item xs={11}>
+        <Grid container spacing={10}>
+          <Grid item xs={12}>
+            <SearchBar onSubmit={handleSubmit} />
+          </Grid>
+          <Grid item xs={8}>
+            <VideoDetail video={selectedVideo} />
+          </Grid>
+          <Grid item xs={4}>
+            <VideoList videos={videos} onVideoSelect={setSelectedVideo} />
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
   );
+
+  async function handleSubmit(searchTerm) {
+    const { data: { items: videos } } = await axios.get("https://www.googleapis.com/youtube/v3/search", {
+      params: {
+        part: "snippet",
+        key: "AIzaSyDfz9tD3Ckc2DXiggnNq4_qODP1KZtA1bs",
+        q: searchTerm,
+        maxResults: 10,
+      }
+    });
+
+    setVideos(videos);
+    setSelectedVideo(videos[0]);
+  }
 }
 
 export default App;
